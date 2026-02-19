@@ -2083,7 +2083,14 @@
 
       <div class="result-item"><div class="result-item-num" style="background:#6A1B9A;">③</div><div class="result-item-info"><div class="result-item-name">咬合力低下</div><div class="result-item-criteria" id="res-method3">Oramo-bf 375N未満</div></div><div class="na-check-inline"><input type="checkbox" id="na-test3" onchange="judgeResults()"><label for="na-test3">実施せず</label></div><div class="result-item-input"><input type="text" id="res-test3" placeholder="値" onchange="judgeResults()"></div><div class="result-item-status status-none" id="res-status3">--</div></div>
 
-      <div class="result-item"><div class="result-item-num" style="background:#E65100;">④</div><div class="result-item-info"><div class="result-item-name">舌口唇運動機能低下</div><div class="result-item-criteria" id="res-method4">パタカ いずれか6回/秒未満</div><div class="result-item-pataka" id="res-pataka" style="font-size:0.6rem;color:var(--grey-600);margin-top:1px;"></div></div><div class="na-check-inline"><input type="checkbox" id="na-test4" onchange="judgeResults()"><label for="na-test4">実施せず</label></div><div class="result-item-input"><input type="text" id="res-test4" placeholder="値" onchange="judgeResults()"></div><div class="result-item-status status-none" id="res-status4">--</div></div>
+      <div class="result-item" style="flex-wrap:wrap;"><div class="result-item-num" style="background:#E65100;">④</div><div class="result-item-info"><div class="result-item-name">舌口唇運動機能低下</div><div class="result-item-criteria" id="res-method4">パタカ いずれか6回/秒未満</div></div><div class="na-check-inline"><input type="checkbox" id="na-test4" onchange="judgeResults()"><label for="na-test4">実施せず</label></div><div class="result-item-status status-none" id="res-status4">--</div>
+        <div style="width:100%;display:flex;gap:6px;margin-top:4px;padding-left:40px;align-items:center;">
+          <div style="flex:1;text-align:center;"><label style="font-size:0.65rem;font-weight:600;color:#E65100;">パ</label><input type="text" id="res-test4-pa" placeholder="回/秒" onchange="judgeResults()" style="width:100%;padding:5px 4px;border:2px solid #E0E0E0;border-radius:6px;font-size:0.8rem;text-align:center;font-family:inherit;"></div>
+          <div style="flex:1;text-align:center;"><label style="font-size:0.65rem;font-weight:600;color:#1565C0;">タ</label><input type="text" id="res-test4-ta" placeholder="回/秒" onchange="judgeResults()" style="width:100%;padding:5px 4px;border:2px solid #E0E0E0;border-radius:6px;font-size:0.8rem;text-align:center;font-family:inherit;"></div>
+          <div style="flex:1;text-align:center;"><label style="font-size:0.65rem;font-weight:600;color:#2E7D32;">カ</label><input type="text" id="res-test4-ka" placeholder="回/秒" onchange="judgeResults()" style="width:100%;padding:5px 4px;border:2px solid #E0E0E0;border-radius:6px;font-size:0.8rem;text-align:center;font-family:inherit;"></div>
+        </div>
+        <input type="hidden" id="res-test4">
+      </div>
 
       <div class="result-item"><div class="result-item-num" style="background:#C2185B;">⑤</div><div class="result-item-info"><div class="result-item-name">低舌圧</div><div class="result-item-criteria" id="res-method5">最大舌圧 30kPa未満</div></div><div class="na-check-inline"><input type="checkbox" id="na-test5" onchange="judgeResults()"><label for="na-test5">実施せず</label></div><div class="result-item-input"><input type="text" id="res-test5" placeholder="値" onchange="judgeResults()"></div><div class="result-item-status status-none" id="res-status5">--</div></div>
 
@@ -2589,7 +2596,28 @@
   function calcSeirei(){var rows=document.querySelectorAll('#seirei-form .q-row'),ac=0,bc=0,cc=0,an=0;rows.forEach(function(r){var sel=r.querySelector('.q-btn.selected');if(sel){an++;if(sel.dataset.val==='A')ac++;else if(sel.dataset.val==='B')bc++;else if(sel.dataset.val==='C')cc++;}});var el=document.getElementById('seirei-result');if(an===0){el.className='result-value result-none';el.textContent='A: --- / B: --- / C: --- (合計: ---点)';return;}var total=ac*4+bc*1;if(total>=4){el.className='result-value result-fail';el.textContent='A: '+ac+'(×4) B: '+bc+'(×1) C: '+cc+' 合計: '+total+'点 → 該当（4点以上）';}else{el.className='result-value result-pass';el.textContent='A: '+ac+'(×4) B: '+bc+'(×1) C: '+cc+' 合計: '+total+'点 → 正常';}syncFromTabs();}
 
   // ===== Integrated Results =====
-  function judgeResults(){var fc=0;for(var i=1;i<=7;i++){var na=document.getElementById('na-test'+i).checked,val=document.getElementById('res-test'+i).value.trim(),se=document.getElementById('res-status'+i),ie=document.getElementById('res-test'+i);if(na){se.className='result-item-status status-na';se.textContent='不可';ie.disabled=true;ie.style.opacity='0.4';continue;}ie.disabled=false;ie.style.opacity='1';if(!val){se.className='result-item-status status-none';se.textContent='--';continue;}var v=parseFloat(val),fail=false;if(i===1){var m=document.getElementById('method-test1').value;fail=m==='tci'?v>=50:v>=5;}else if(i===2){var m=document.getElementById('method-test2').value;fail=m==='moisture'?v<27.0:v<=2.0;}else if(i===3){var m=document.getElementById('method-test3').value;var th={ps2f:350,ps2n:500,ps1:200,oramo:375,teeth:20};fail=v<th[m];}else if(i===4){fail=v<6.0;}else if(i===5){fail=v<30;}else if(i===6){var m=document.getElementById('method-test6').value;fail=m==='glucose'?v<100:v<=2;}else if(i===7){var m=document.getElementById('method-test7').value;if(m==='eat10')fail=v>=3;else fail=v>=4;}if(fail){se.className='result-item-status status-fail';se.textContent='該当';fc++;}else{se.className='result-item-status status-pass';se.textContent='正常';}}var ce=document.getElementById('diag-count'),ve=document.getElementById('diag-verdict'),be=document.getElementById('diagnosis-box');ce.textContent=fc;if(fc>=3){be.className='diagnosis-result diag-positive';ve.textContent='口腔機能低下症';}else{be.className='diagnosis-result diag-negative';ve.textContent=fc===0?'該当なし':'該当あり（診断基準未満）';}
+  function judgeResults(){var fc=0;for(var i=1;i<=7;i++){var na=document.getElementById('na-test'+i).checked,se=document.getElementById('res-status'+i);
+    // ④ special: 3 inputs (pa/ta/ka)
+    if(i===4){
+      var paPtk=document.getElementById('res-test4-pa');
+      var taPtk=document.getElementById('res-test4-ta');
+      var kaPtk=document.getElementById('res-test4-ka');
+      if(na){se.className='result-item-status status-na';se.textContent='不可';paPtk.disabled=true;taPtk.disabled=true;kaPtk.disabled=true;paPtk.style.opacity='0.4';taPtk.style.opacity='0.4';kaPtk.style.opacity='0.4';continue;}
+      paPtk.disabled=false;taPtk.disabled=false;kaPtk.disabled=false;paPtk.style.opacity='1';taPtk.style.opacity='1';kaPtk.style.opacity='1';
+      var paV=paPtk.value.trim(),taV=taPtk.value.trim(),kaV=kaPtk.value.trim();
+      if(!paV&&!taV&&!kaV){se.className='result-item-status status-none';se.textContent='--';
+        document.getElementById('res-test4').value='';continue;}
+      var fail4=false;
+      if(paV&&parseFloat(paV)<6.0)fail4=true;
+      if(taV&&parseFloat(taV)<6.0)fail4=true;
+      if(kaV&&parseFloat(kaV)<6.0)fail4=true;
+      // Store min for backward compat
+      var vals4=[paV,taV,kaV].filter(function(x){return x;}).map(parseFloat);
+      if(vals4.length>0) document.getElementById('res-test4').value=Math.min.apply(null,vals4).toFixed(1);
+      if(fail4){se.className='result-item-status status-fail';se.textContent='該当';fc++;}else{se.className='result-item-status status-pass';se.textContent='正常';}
+      continue;
+    }
+    var val=document.getElementById('res-test'+i).value.trim(),ie=document.getElementById('res-test'+i);if(na){se.className='result-item-status status-na';se.textContent='不可';ie.disabled=true;ie.style.opacity='0.4';continue;}ie.disabled=false;ie.style.opacity='1';if(!val){se.className='result-item-status status-none';se.textContent='--';continue;}var v=parseFloat(val),fail=false;if(i===1){var m=document.getElementById('method-test1').value;fail=m==='tci'?v>=50:v>=5;}else if(i===2){var m=document.getElementById('method-test2').value;fail=m==='moisture'?v<27.0:v<=2.0;}else if(i===3){var m=document.getElementById('method-test3').value;var th={ps2f:350,ps2n:500,ps1:200,oramo:375,teeth:20};fail=v<th[m];}else if(i===5){fail=v<30;}else if(i===6){var m=document.getElementById('method-test6').value;fail=m==='glucose'?v<100:v<=2;}else if(i===7){var m=document.getElementById('method-test7').value;if(m==='eat10')fail=v>=3;else fail=v>=4;}if(fail){se.className='result-item-status status-fail';se.textContent='該当';fc++;}else{se.className='result-item-status status-pass';se.textContent='正常';}}var ce=document.getElementById('diag-count'),ve=document.getElementById('diag-verdict'),be=document.getElementById('diagnosis-box');ce.textContent=fc;if(fc>=3){be.className='diagnosis-result diag-positive';ve.textContent='口腔機能低下症';}else{be.className='diagnosis-result diag-negative';ve.textContent=fc===0?'該当なし':'該当あり（診断基準未満）';}
   // Update header badge
   var hc=document.getElementById('header-diag-count');
   var hv=document.getElementById('header-diag-verdict');
@@ -2640,17 +2668,11 @@
       el=document.getElementById('bite-result');
       if(el&&!el.textContent.includes('---')){m=el.textContent.match(/([\d.]+)N/);if(m){document.getElementById('res-test3').value=m[1];document.getElementById('method-test3').value=document.getElementById('bite-device').value;}}
     }
-    // ④ 舌口唇運動
+    // ④ 舌口唇運動 (3 separate inputs)
     if(typeof dkResults!=='undefined'&&(dkResults.pa!==null||dkResults.ta!==null||dkResults.ka!==null)){
-      var rates=[dkResults.pa,dkResults.ta,dkResults.ka].filter(function(r){return r!==null;}).map(function(r){return r.rate;});
-      if(rates.length>0){document.getElementById('res-test4').value=Math.min.apply(null,rates).toFixed(1);}
-      var ptk=document.getElementById('res-pataka');
-      if(ptk){
-        var pa=dkResults.pa?dkResults.pa.rate.toFixed(1):'--';
-        var ta=dkResults.ta?dkResults.ta.rate.toFixed(1):'--';
-        var ka=dkResults.ka?dkResults.ka.rate.toFixed(1):'--';
-        ptk.textContent='パ:'+pa+' タ:'+ta+' カ:'+ka+' 回/秒';
-      }
+      if(dkResults.pa!==null) document.getElementById('res-test4-pa').value=dkResults.pa.rate.toFixed(1);
+      if(dkResults.ta!==null) document.getElementById('res-test4-ta').value=dkResults.ta.rate.toFixed(1);
+      if(dkResults.ka!==null) document.getElementById('res-test4-ka').value=dkResults.ka.rate.toFixed(1);
     }
     // ⑤ 低舌圧
     el=document.getElementById('tongue-result');
@@ -2728,16 +2750,22 @@
       if(na&&na.checked){
         tv.textContent='実施せず';
         tv.className='tab-val tv-na';
+      }else if(i===4){
+        // Special: test4 has 3 separate inputs
+        var pp=document.getElementById('res-test4-pa').value||'';
+        var tp=document.getElementById('res-test4-ta').value||'';
+        var kp=document.getElementById('res-test4-ka').value||'';
+        if(pp||tp||kp){
+          tv.textContent='パ:'+(pp||'--')+' タ:'+(tp||'--')+' カ:'+(kp||'--');
+          tv.className='tab-val '+(se&&se.textContent==='該当'?'tv-fail':'tv-pass');
+        }else{
+          tv.textContent='未入力';
+          tv.className='tab-val';
+        }
       }else if(ve&&ve.value.trim()){
         var txt=ve.value.trim()+mu;
         if(mn&&(i===1||i===2||i===3||i===6||i===7))txt=mn+' '+txt;
         if(i===7&&seireiTab&&mel7&&mel7.value==='seirei')txt='聖隷式 '+seireiTab;
-        if(i===4&&typeof dkResults!=='undefined'){
-          var pp=dkResults.pa?dkResults.pa.rate.toFixed(1):'--';
-          var tp=dkResults.ta?dkResults.ta.rate.toFixed(1):'--';
-          var kp=dkResults.ka?dkResults.ka.rate.toFixed(1):'--';
-          txt='パ:'+pp+' タ:'+tp+' カ:'+kp;
-        }
         tv.textContent=txt;
         tv.className='tab-val '+(se&&se.textContent==='該当'?'tv-fail':'tv-pass');
       }else{
@@ -2925,32 +2953,30 @@ if ('serviceWorker' in navigator) {
       document.getElementById('plan-judge3').className='result-val '+(s3==='該当'?'fail':'pass');
     }
 
-    // ④ Pa/Ta/Ka (split into 3 rows: 4a=Pa, 4b=Ta, 4c=Ka)
+    // ④ Pa/Ta/Ka (read from 3 separate inputs in results tab)
     var na4=document.getElementById('na-test4').checked;
-    var s4=document.getElementById('res-status4').textContent;
     if(na4){
       ['4a','4b','4c'].forEach(function(k){
         document.getElementById('plan-res'+k).textContent='---';
         document.getElementById('plan-judge'+k).textContent='---';
         document.getElementById('plan-judge'+k).className='result-val';
       });
-    }else if(typeof dkResults!=='undefined'){
-      var paRate=dkResults.pa?dkResults.pa.rate.toFixed(1):'---';
-      var taRate=dkResults.ta?dkResults.ta.rate.toFixed(1):'---';
-      var kaRate=dkResults.ka?dkResults.ka.rate.toFixed(1):'---';
+    }else{
+      var paRate=document.getElementById('res-test4-pa').value||'---';
+      var taRate=document.getElementById('res-test4-ta').value||'---';
+      var kaRate=document.getElementById('res-test4-ka').value||'---';
       document.getElementById('plan-res4a').textContent=paRate;
       document.getElementById('plan-res4b').textContent=taRate;
       document.getElementById('plan-res4c').textContent=kaRate;
-      // Judge each individually
-      var paFail=dkResults.pa?dkResults.pa.rate<6.0:false;
-      var taFail=dkResults.ta?dkResults.ta.rate<6.0:false;
-      var kaFail=dkResults.ka?dkResults.ka.rate<6.0:false;
-      document.getElementById('plan-judge4a').textContent=paFail?'2. 低下':'1. 正常範囲内';
-      document.getElementById('plan-judge4a').className='result-val '+(paFail?'fail':'pass');
-      document.getElementById('plan-judge4b').textContent=taFail?'2. 低下':'1. 正常範囲内';
-      document.getElementById('plan-judge4b').className='result-val '+(taFail?'fail':'pass');
-      document.getElementById('plan-judge4c').textContent=kaFail?'2. 低下':'1. 正常範囲内';
-      document.getElementById('plan-judge4c').className='result-val '+(kaFail?'fail':'pass');
+      var paFail=paRate!=='---'&&parseFloat(paRate)<6.0;
+      var taFail=taRate!=='---'&&parseFloat(taRate)<6.0;
+      var kaFail=kaRate!=='---'&&parseFloat(kaRate)<6.0;
+      document.getElementById('plan-judge4a').textContent=paFail?'2. 低下':(paRate!=='---'?'1. 正常範囲内':'---');
+      document.getElementById('plan-judge4a').className='result-val '+(paFail?'fail':(paRate!=='---'?'pass':''));
+      document.getElementById('plan-judge4b').textContent=taFail?'2. 低下':(taRate!=='---'?'1. 正常範囲内':'---');
+      document.getElementById('plan-judge4b').className='result-val '+(taFail?'fail':(taRate!=='---'?'pass':''));
+      document.getElementById('plan-judge4c').textContent=kaFail?'2. 低下':(kaRate!=='---'?'1. 正常範囲内':'---');
+      document.getElementById('plan-judge4c').className='result-val '+(kaFail?'fail':(kaRate!=='---'?'pass':''));
     }
 
     // ⑤ Tongue pressure
@@ -3018,13 +3044,16 @@ if ('serviceWorker' in navigator) {
     // Plan row 7 = test 5 (tongue pressure)
     // Plan row 8 = test 6 (chewing)
     // Plan row 9 = test 7 (swallowing)
+    var paVal4=document.getElementById('res-test4-pa').value;
+    var taVal4=document.getElementById('res-test4-ta').value;
+    var kaVal4=document.getElementById('res-test4-ka').value;
     var statusMap={
       1: na1?'na':s1,
       2: na2?'na':s2,
       3: na3?'na':s3,
-      4: na4?'na':(dkResults.pa&&dkResults.pa.rate<6.0?'該当':'正常'),
-      5: na4?'na':(dkResults.ta&&dkResults.ta.rate<6.0?'該当':'正常'),
-      6: na4?'na':(dkResults.ka&&dkResults.ka.rate<6.0?'該当':'正常'),
+      4: na4?'na':(paVal4?(parseFloat(paVal4)<6.0?'該当':'正常'):''),
+      5: na4?'na':(taVal4?(parseFloat(taVal4)<6.0?'該当':'正常'):''),
+      6: na4?'na':(kaVal4?(parseFloat(kaVal4)<6.0?'該当':'正常'):''),
       7: na5?'na':s5,
       8: na6?'na':s6,
       9: na7?'na':s7
@@ -3077,6 +3106,14 @@ if ('serviceWorker' in navigator) {
           var stotal=ac*4+bc*1;
           lines.push(nums[i-1]+names[i-1]+': '+mn+' A:'+ac+'(×4) B:'+bc+'(×1) C:'+cc+' 合計:'+stotal+'点 → '+st);
         }
+        continue;
+      }
+      if(i===4){
+        var paK=document.getElementById('res-test4-pa').value||'--';
+        var taK=document.getElementById('res-test4-ta').value||'--';
+        var kaK=document.getElementById('res-test4-ka').value||'--';
+        if(paK==='--'&&taK==='--'&&kaK==='--'){lines.push(nums[i-1]+names[i-1]+': 未入力');}
+        else{lines.push(nums[i-1]+names[i-1]+': パ:'+paK+'回/秒 タ:'+taK+'回/秒 カ:'+kaK+'回/秒 → '+st);}
         continue;
       }
       if(!val){lines.push(nums[i-1]+names[i-1]+': 未入力');}
