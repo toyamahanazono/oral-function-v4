@@ -978,6 +978,40 @@
 .plan-teeth-row { display:flex; flex-wrap:wrap; gap:12px; }
 .plan-teeth-item label { display:flex; align-items:center; gap:3px; font-size:0.75rem; }
 
+/* === Data Save/Load === */
+.data-btn { padding:4px 10px; border:none; border-radius:6px; font-size:0.7rem; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+.data-btn:active { transform:scale(0.95); }
+.data-btn-save { background:#4CAF50; color:#fff; }
+.data-btn-load { background:#1565C0; color:#fff; }
+.data-btn-new { background:#FF9800; color:#fff; }
+.data-header-btns { display:flex; gap:4px; align-items:center; }
+
+/* Modal overlay */
+.modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:200; justify-content:center; align-items:center; }
+.modal-overlay.active { display:flex; }
+.modal { background:#fff; border-radius:12px; width:90%; max-width:500px; max-height:80vh; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.2); }
+.modal-header { padding:12px 16px; background:var(--teal); color:#fff; font-weight:700; font-size:0.9rem; display:flex; justify-content:space-between; align-items:center; }
+.modal-close { background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer; padding:4px 8px; }
+.modal-body { padding:12px 16px; overflow-y:auto; max-height:60vh; }
+.modal-footer { padding:8px 16px; border-top:1px solid var(--grey-200); display:flex; justify-content:flex-end; gap:8px; }
+
+/* Patient list */
+.patient-list-item { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-bottom:1px solid var(--grey-200); cursor:pointer; transition:background 0.1s; }
+.patient-list-item:hover { background:var(--teal-light); }
+.patient-list-item:last-child { border-bottom:none; }
+.patient-list-info { flex:1; }
+.patient-list-name { font-weight:700; font-size:0.85rem; }
+.patient-list-meta { font-size:0.7rem; color:var(--grey-600); }
+.patient-list-actions { display:flex; gap:6px; }
+.patient-list-del { background:#FFEBEE; color:#D32F2F; border:none; border-radius:4px; padding:4px 8px; font-size:0.65rem; font-weight:600; cursor:pointer; }
+.patient-list-empty { text-align:center; padding:20px; color:var(--grey-600); font-size:0.85rem; }
+.patient-search { width:100%; padding:8px 12px; border:2px solid var(--grey-200); border-radius:8px; font-size:0.85rem; font-family:inherit; margin-bottom:8px; }
+.patient-search:focus { outline:none; border-color:var(--teal); }
+
+/* Loading spinner */
+.spinner { display:inline-block; width:16px; height:16px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin 0.6s linear infinite; vertical-align:middle; margin-right:4px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
 </style>
 </head>
 <body>
@@ -995,6 +1029,11 @@
       <span class="ph-diag-verdict" id="header-diag-verdict">--</span>
     </div>
     <button id="copy-karte-btn-header" onclick="copyKarteText()" class="ph-copy-btn">📋コピー</button>
+    <div class="data-header-btns">
+      <button class="data-btn data-btn-save" onclick="saveToSheet()">💾保存</button>
+      <button class="data-btn data-btn-load" onclick="openPatientList()">📂読込</button>
+      <button class="data-btn data-btn-new" onclick="clearAllData()">🆕新規</button>
+    </div>
   </div>
 </div>
 
@@ -2313,6 +2352,22 @@
 
 </div><!-- /content -->
 
+<!-- ═══ PATIENT LIST MODAL ═══ -->
+<div class="modal-overlay" id="patientModal">
+  <div class="modal">
+    <div class="modal-header">
+      📂 患者データ一覧
+      <button class="modal-close" onclick="closePatientList()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="text" class="patient-search" id="patientSearch" placeholder="🔍 患者名で検索..." oninput="filterPatientList()">
+      <div id="patientListContainer">
+        <div class="patient-list-empty">読み込み中...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ FOOTER NAV ═══ -->
 <div class="footer-nav">
   <button class="footer-btn prev" id="prevBtn" onclick="navigate(-1)" disabled>◀ 前の検査</button>
@@ -2821,16 +2876,12 @@
 
 
 <script>
-// === Service Worker Registration ===
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js').then(function(reg) {
-      console.log('SW registered:', reg.scope);
-    }).catch(function(err) {
-      console.log('SW registration failed:', err);
-    });
-  });
-}
+// === Service Worker Registration (disabled for GAS) ===
+// if ('serviceWorker' in navigator) {
+//   window.addEventListener('load', function() {
+//     navigator.serviceWorker.register('./sw.js');
+//   });
+// }
 
 
 
@@ -3139,6 +3190,369 @@ if ('serviceWorker' in navigator) {
 
 
 
+
+<!-- === Google Apps Script Data Integration === -->
+<script>
+  // === Save data to Google Spreadsheet ===
+  function saveToSheet(){
+    var btn=event.target;
+    var origText=btn.textContent;
+    btn.innerHTML='<span class="spinner"></span>保存中';
+    btn.disabled=true;
+
+    var data={
+      patientName: document.getElementById('patient-name-header').value,
+      examDate: document.getElementById('exam-date-header').value,
+      test1Method: (document.getElementById('method-test1')||{}).value||'',
+      test1Value: document.getElementById('res-test1').value,
+      test1Status: document.getElementById('res-status1').textContent,
+      test2Method: (document.getElementById('method-test2')||{}).value||'',
+      test2Value: document.getElementById('res-test2').value,
+      test2Status: document.getElementById('res-status2').textContent,
+      test3Method: (document.getElementById('method-test3')||{}).value||'',
+      test3Value: document.getElementById('res-test3').value,
+      test3Status: document.getElementById('res-status3').textContent,
+      test4Pa: document.getElementById('res-test4-pa').value,
+      test4Ta: document.getElementById('res-test4-ta').value,
+      test4Ka: document.getElementById('res-test4-ka').value,
+      test4Status: document.getElementById('res-status4').textContent,
+      test5Value: document.getElementById('res-test5').value,
+      test5Status: document.getElementById('res-status5').textContent,
+      test6Method: (document.getElementById('method-test6')||{}).value||'',
+      test6Value: document.getElementById('res-test6').value,
+      test6Status: document.getElementById('res-status6').textContent,
+      test7Method: (document.getElementById('method-test7')||{}).value||'',
+      test7Value: document.getElementById('res-test7').value,
+      test7Status: document.getElementById('res-status7').textContent,
+      diagCount: document.getElementById('diag-count').textContent,
+      diagResult: document.getElementById('diag-verdict').textContent,
+      na1: document.getElementById('na-test1').checked,
+      na2: document.getElementById('na-test2').checked,
+      na3: document.getElementById('na-test3').checked,
+      na4: document.getElementById('na-test4').checked,
+      na5: document.getElementById('na-test5').checked,
+      na6: document.getElementById('na-test6').checked,
+      na7: document.getElementById('na-test7').checked,
+      planJSON: collectPlanJSON()
+    };
+
+    if(typeof google!=='undefined'&&google.script){
+      google.script.run
+        .withSuccessHandler(function(result){
+          btn.textContent='✓ 保存完了';
+          btn.style.background='#4CAF50';
+          btn.disabled=false;
+          setTimeout(function(){btn.textContent=origText;btn.style.background='';},2000);
+        })
+        .withFailureHandler(function(err){
+          btn.textContent='❌ エラー';
+          btn.disabled=false;
+          alert('保存エラー: '+err.message);
+          setTimeout(function(){btn.textContent=origText;btn.style.background='';},2000);
+        })
+        .savePatientData(data);
+    }else{
+      // ローカル環境（GitHub Pages等）ではlocalStorage
+      var saved=JSON.parse(localStorage.getItem('oralFuncData')||'[]');
+      data.id=saved.length+1;
+      data.saveDate=new Date().toLocaleString('ja-JP');
+      saved.push(data);
+      localStorage.setItem('oralFuncData',JSON.stringify(saved));
+      btn.textContent='✓ 保存完了(ローカル)';
+      btn.style.background='#4CAF50';
+      btn.disabled=false;
+      setTimeout(function(){btn.textContent=origText;btn.style.background='';},2000);
+    }
+  }
+
+  // === Collect plan form data as JSON ===
+  function collectPlanJSON(){
+    var plan={};
+    // Patient info
+    plan.age=document.getElementById('plan-age').value;
+    plan.sex=(document.querySelector('input[name="plan-sex"]:checked')||{}).value||'';
+    // General condition
+    plan.disHeart=document.getElementById('plan-dis-heart').checked;
+    plan.disLiver=document.getElementById('plan-dis-liver').checked;
+    plan.disDiabetes=document.getElementById('plan-dis-diabetes').checked;
+    plan.disBp=document.getElementById('plan-dis-bp').checked;
+    plan.disBrain=document.getElementById('plan-dis-brain').checked;
+    plan.disOtherChk=document.getElementById('plan-dis-other-chk').checked;
+    plan.disOther=document.getElementById('plan-dis-other').value;
+    plan.med=(document.querySelector('input[name="plan-med"]:checked')||{}).value||'';
+    plan.medName=document.getElementById('plan-med-name').value;
+    plan.pneumonia=(document.querySelector('input[name="plan-pneumonia"]:checked')||{}).value||'';
+    plan.weight=document.getElementById('plan-weight').value;
+    plan.height=document.getElementById('plan-height').value;
+    plan.nutrition=(document.querySelector('input[name="plan-nutrition"]:checked')||{}).value||'';
+    plan.weightChange=(document.querySelector('input[name="plan-weight-change"]:checked')||{}).value||'';
+    plan.weightPeriod=document.getElementById('plan-weight-period').value;
+    plan.weightAmount=document.getElementById('plan-weight-amount').value;
+    plan.weightDir=document.getElementById('plan-weight-dir').value;
+    plan.diet=(document.querySelector('input[name="plan-diet"]:checked')||{}).value||'';
+    plan.dietOther=document.getElementById('plan-diet-other').value;
+    plan.appetite=(document.querySelector('input[name="plan-appetite"]:checked')||{}).value||'';
+    plan.appetiteReason=document.getElementById('plan-appetite-reason').value;
+    // Teeth status
+    plan.plaque=document.getElementById('plan-plaque').value;
+    plan.gingivitis=document.getElementById('plan-gingivitis').value;
+    plan.mobility=document.getElementById('plan-mobility').value;
+    plan.dentureStatus=document.getElementById('plan-denture-status').value;
+    // Management plan
+    for(var i=1;i<=9;i++){
+      var r=document.querySelector('input[name="plan-mgmt'+i+'"]:checked');
+      plan['mgmt'+i]=r?r.value:'';
+    }
+    plan.goal=document.getElementById('plan-goal').value;
+    plan.reevalMonths=document.getElementById('plan-reeval-months').value;
+    plan.treatmentPeriod=document.getElementById('plan-treatment-period').value;
+    return JSON.stringify(plan);
+  }
+
+  // === Open patient list modal ===
+  function openPatientList(){
+    document.getElementById('patientModal').classList.add('active');
+    document.getElementById('patientSearch').value='';
+    document.getElementById('patientListContainer').innerHTML='<div class="patient-list-empty">読み込み中...</div>';
+
+    if(typeof google!=='undefined'&&google.script){
+      google.script.run
+        .withSuccessHandler(function(list){
+          window._patientList=list;
+          renderPatientList(list);
+        })
+        .withFailureHandler(function(err){
+          document.getElementById('patientListContainer').innerHTML='<div class="patient-list-empty">読み込みエラー: '+err.message+'</div>';
+        })
+        .getPatientList();
+    }else{
+      var saved=JSON.parse(localStorage.getItem('oralFuncData')||'[]');
+      var list=saved.map(function(d){return{id:d.id,date:d.saveDate,name:d.patientName,examDate:d.examDate};}).reverse();
+      window._patientList=list;
+      renderPatientList(list);
+    }
+  }
+
+  function closePatientList(){
+    document.getElementById('patientModal').classList.remove('active');
+  }
+
+  function renderPatientList(list){
+    var container=document.getElementById('patientListContainer');
+    if(!list||list.length===0){
+      container.innerHTML='<div class="patient-list-empty">保存されたデータはありません</div>';
+      return;
+    }
+    var html='';
+    list.forEach(function(p){
+      html+='<div class="patient-list-item" onclick="loadPatient('+p.id+')">';
+      html+='<div class="patient-list-info">';
+      html+='<div class="patient-list-name">'+escHtml(p.name||'名前未入力')+'</div>';
+      html+='<div class="patient-list-meta">検査日: '+(p.examDate||'---')+' ／ 保存: '+(p.date||'---')+'</div>';
+      html+='</div>';
+      html+='<div class="patient-list-actions">';
+      html+='<button class="patient-list-del" onclick="event.stopPropagation();deletePatient('+p.id+')">🗑</button>';
+      html+='</div></div>';
+    });
+    container.innerHTML=html;
+  }
+
+  function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  function filterPatientList(){
+    var q=document.getElementById('patientSearch').value.toLowerCase();
+    var list=window._patientList||[];
+    var filtered=list.filter(function(p){return(p.name||'').toLowerCase().includes(q);});
+    renderPatientList(filtered);
+  }
+
+  // === Load patient data ===
+  function loadPatient(id){
+    closePatientList();
+
+    if(typeof google!=='undefined'&&google.script){
+      google.script.run
+        .withSuccessHandler(function(row){
+          if(row) applyLoadedData(row);
+          else alert('データが見つかりません');
+        })
+        .withFailureHandler(function(err){alert('読み込みエラー: '+err.message);})
+        .loadPatientData(id);
+    }else{
+      var saved=JSON.parse(localStorage.getItem('oralFuncData')||'[]');
+      var found=saved.find(function(d){return d.id==id;});
+      if(found) applyLoadedDataLocal(found);
+    }
+  }
+
+  // === Apply loaded data from spreadsheet ===
+  function applyLoadedData(row){
+    document.getElementById('patient-name-header').value=row['患者名']||'';
+    document.getElementById('exam-date-header').value=row['検査日']||'';
+    syncPatientFields(document.getElementById('patient-name-header'));
+
+    // Methods
+    var mTest1=document.getElementById('method-test1');if(mTest1&&row['①口腔衛生_方法'])mTest1.value=row['①口腔衛生_方法'];
+    var mTest2=document.getElementById('method-test2');if(mTest2&&row['②口腔乾燥_方法'])mTest2.value=row['②口腔乾燥_方法'];
+    var mTest3=document.getElementById('method-test3');if(mTest3&&row['③咬合力_方法'])mTest3.value=row['③咬合力_方法'];
+    var mTest6=document.getElementById('method-test6');if(mTest6&&row['⑥咀嚼_方法'])mTest6.value=row['⑥咀嚼_方法'];
+    var mTest7=document.getElementById('method-test7');if(mTest7&&row['⑦嚥下_方法'])mTest7.value=row['⑦嚥下_方法'];
+
+    // Values
+    document.getElementById('res-test1').value=row['①口腔衛生_値']||'';
+    document.getElementById('res-test2').value=row['②口腔乾燥_値']||'';
+    document.getElementById('res-test3').value=row['③咬合力_値']||'';
+    document.getElementById('res-test4-pa').value=row['④パ_値']||'';
+    document.getElementById('res-test4-ta').value=row['④タ_値']||'';
+    document.getElementById('res-test4-ka').value=row['④カ_値']||'';
+    document.getElementById('res-test5').value=row['⑤舌圧_値']||'';
+    document.getElementById('res-test6').value=row['⑥咀嚼_値']||'';
+    document.getElementById('res-test7').value=row['⑦嚥下_値']||'';
+
+    // NA checkboxes
+    document.getElementById('na-test1').checked=(row['①実施せず']==='○');
+    document.getElementById('na-test2').checked=(row['②実施せず']==='○');
+    document.getElementById('na-test3').checked=(row['③実施せず']==='○');
+    document.getElementById('na-test4').checked=(row['④実施せず']==='○');
+    document.getElementById('na-test5').checked=(row['⑤実施せず']==='○');
+    document.getElementById('na-test6').checked=(row['⑥実施せず']==='○');
+    document.getElementById('na-test7').checked=(row['⑦実施せず']==='○');
+
+    judgeResults();
+
+    // Restore plan JSON
+    if(row['計画書JSON']){
+      try{ restorePlanJSON(row['計画書JSON']); }catch(e){}
+    }
+
+    // Switch to results tab
+    switchTab('results');
+  }
+
+  // === Apply loaded data from localStorage ===
+  function applyLoadedDataLocal(d){
+    document.getElementById('patient-name-header').value=d.patientName||'';
+    document.getElementById('exam-date-header').value=d.examDate||'';
+    syncPatientFields(document.getElementById('patient-name-header'));
+
+    if(d.test1Method){var m=document.getElementById('method-test1');if(m)m.value=d.test1Method;}
+    if(d.test2Method){var m=document.getElementById('method-test2');if(m)m.value=d.test2Method;}
+    if(d.test3Method){var m=document.getElementById('method-test3');if(m)m.value=d.test3Method;}
+    if(d.test6Method){var m=document.getElementById('method-test6');if(m)m.value=d.test6Method;}
+    if(d.test7Method){var m=document.getElementById('method-test7');if(m)m.value=d.test7Method;}
+
+    document.getElementById('res-test1').value=d.test1Value||'';
+    document.getElementById('res-test2').value=d.test2Value||'';
+    document.getElementById('res-test3').value=d.test3Value||'';
+    document.getElementById('res-test4-pa').value=d.test4Pa||'';
+    document.getElementById('res-test4-ta').value=d.test4Ta||'';
+    document.getElementById('res-test4-ka').value=d.test4Ka||'';
+    document.getElementById('res-test5').value=d.test5Value||'';
+    document.getElementById('res-test6').value=d.test6Value||'';
+    document.getElementById('res-test7').value=d.test7Value||'';
+
+    document.getElementById('na-test1').checked=!!d.na1;
+    document.getElementById('na-test2').checked=!!d.na2;
+    document.getElementById('na-test3').checked=!!d.na3;
+    document.getElementById('na-test4').checked=!!d.na4;
+    document.getElementById('na-test5').checked=!!d.na5;
+    document.getElementById('na-test6').checked=!!d.na6;
+    document.getElementById('na-test7').checked=!!d.na7;
+
+    judgeResults();
+    if(d.planJSON){try{restorePlanJSON(d.planJSON);}catch(e){}}
+    switchTab('results');
+  }
+
+  // === Restore plan form from JSON ===
+  function restorePlanJSON(jsonStr){
+    var p=JSON.parse(jsonStr);
+    if(p.age) document.getElementById('plan-age').value=p.age;
+    if(p.sex){var r=document.querySelector('input[name="plan-sex"][value="'+p.sex+'"]');if(r)r.checked=true;}
+    if(p.disHeart) document.getElementById('plan-dis-heart').checked=true;
+    if(p.disLiver) document.getElementById('plan-dis-liver').checked=true;
+    if(p.disDiabetes) document.getElementById('plan-dis-diabetes').checked=true;
+    if(p.disBp) document.getElementById('plan-dis-bp').checked=true;
+    if(p.disBrain) document.getElementById('plan-dis-brain').checked=true;
+    if(p.disOtherChk) document.getElementById('plan-dis-other-chk').checked=true;
+    if(p.disOther) document.getElementById('plan-dis-other').value=p.disOther;
+    if(p.med){var r=document.querySelector('input[name="plan-med"][value="'+p.med+'"]');if(r)r.checked=true;}
+    if(p.medName) document.getElementById('plan-med-name').value=p.medName;
+    if(p.pneumonia){var r=document.querySelector('input[name="plan-pneumonia"][value="'+p.pneumonia+'"]');if(r)r.checked=true;}
+    if(p.weight) document.getElementById('plan-weight').value=p.weight;
+    if(p.height) document.getElementById('plan-height').value=p.height;
+    if(p.nutrition){var r=document.querySelector('input[name="plan-nutrition"][value="'+p.nutrition+'"]');if(r)r.checked=true;}
+    if(p.weightChange){var r=document.querySelector('input[name="plan-weight-change"][value="'+p.weightChange+'"]');if(r)r.checked=true;}
+    if(p.weightPeriod) document.getElementById('plan-weight-period').value=p.weightPeriod;
+    if(p.weightAmount) document.getElementById('plan-weight-amount').value=p.weightAmount;
+    if(p.weightDir) document.getElementById('plan-weight-dir').value=p.weightDir;
+    if(p.diet){var r=document.querySelector('input[name="plan-diet"][value="'+p.diet+'"]');if(r)r.checked=true;if(p.diet==='その他')document.getElementById('plan-diet-other').style.display='block';}
+    if(p.dietOther) document.getElementById('plan-diet-other').value=p.dietOther;
+    if(p.appetite){var r=document.querySelector('input[name="plan-appetite"][value="'+p.appetite+'"]');if(r)r.checked=true;}
+    if(p.appetiteReason) document.getElementById('plan-appetite-reason').value=p.appetiteReason;
+    if(p.plaque) document.getElementById('plan-plaque').value=p.plaque;
+    if(p.gingivitis) document.getElementById('plan-gingivitis').value=p.gingivitis;
+    if(p.mobility) document.getElementById('plan-mobility').value=p.mobility;
+    if(p.dentureStatus) document.getElementById('plan-denture-status').value=p.dentureStatus;
+    for(var i=1;i<=9;i++){
+      if(p['mgmt'+i]){var r=document.querySelector('input[name="plan-mgmt'+i+'"][value="'+p['mgmt'+i]+'"]');if(r)r.checked=true;}
+    }
+    if(p.goal) document.getElementById('plan-goal').value=p.goal;
+    if(p.reevalMonths) document.getElementById('plan-reeval-months').value=p.reevalMonths;
+    if(p.treatmentPeriod) document.getElementById('plan-treatment-period').value=p.treatmentPeriod;
+    calcPlanBMI();
+  }
+
+  // === Delete patient ===
+  function deletePatient(id){
+    if(!confirm('このデータを削除しますか？')) return;
+
+    if(typeof google!=='undefined'&&google.script){
+      google.script.run
+        .withSuccessHandler(function(){openPatientList();})
+        .withFailureHandler(function(err){alert('削除エラー: '+err.message);})
+        .deletePatientData(id);
+    }else{
+      var saved=JSON.parse(localStorage.getItem('oralFuncData')||'[]');
+      saved=saved.filter(function(d){return d.id!=id;});
+      localStorage.setItem('oralFuncData',JSON.stringify(saved));
+      openPatientList();
+    }
+  }
+
+  // === Clear all data (new patient) ===
+  function clearAllData(){
+    if(!confirm('入力データをすべてクリアして新規にしますか？')) return;
+
+    document.getElementById('patient-name-header').value='';
+    document.getElementById('exam-date-header').valueAsDate=new Date();
+    syncPatientFields(document.getElementById('patient-name-header'));
+
+    // Clear all test results
+    for(var i=1;i<=7;i++){
+      var el=document.getElementById('res-test'+i);
+      if(el){el.value='';el.disabled=false;el.style.opacity='1';}
+      var na=document.getElementById('na-test'+i);
+      if(na)na.checked=(i===6);// ⑥ default checked
+    }
+    document.getElementById('res-test4-pa').value='';
+    document.getElementById('res-test4-ta').value='';
+    document.getElementById('res-test4-ka').value='';
+
+    // Reset TCI
+    document.querySelectorAll('.tci-cell').forEach(function(c){c.dataset.score='0';c.querySelector('.tci-score').textContent='0';c.className='tci-cell';});
+    if(typeof calcTCI==='function')calcTCI();
+
+    // Reset diadochokinesis
+    if(typeof dkResults!=='undefined'){dkResults.pa=null;dkResults.ta=null;dkResults.ka=null;}
+
+    // Reset questionnaires
+    document.querySelectorAll('.q-btn.selected').forEach(function(b){b.classList.remove('selected');});
+
+    judgeResults();
+    switchTab('overview');
+  }
+</script>
 
 <!-- html2canvas CDN for screenshot/PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
