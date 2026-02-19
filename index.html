@@ -2111,14 +2111,13 @@
 <div class="tab-panel" id="plan">
 
   <!-- 操作ボタン上部 -->
-  <div class="plan-btn-group">
+  <div class="plan-btn-group" style="margin-bottom:0;">
     <button class="plan-btn plan-btn-primary" onclick="populatePlan()">🔄 検査結果を反映</button>
   </div>
 
   <!-- プレビュー表示エリア -->
-  <div id="plan-content">
-
-  <div class="plan-form">
+  <div id="plan-content" style="margin-top:0;">
+  <div class="plan-form" style="margin-top:0;">
     <div class="plan-form-header">📄 管理計画書</div>
     <div class="plan-form-body">
 
@@ -2297,7 +2296,7 @@
   </div><!-- /plan-content -->
 
   <!-- 出力ボタン -->
-  <div class="plan-btn-group">
+  <div class="plan-btn-group" style="margin-bottom:80px;">
     <button class="plan-btn plan-btn-primary" onclick="populatePlan()">🔄 検査結果を反映</button>
     <button class="plan-btn plan-btn-secondary" onclick="exportPlanPDF()">📥 PDF出力</button>
     <button class="plan-btn plan-btn-outline" onclick="savePlanScreenshot()">📸 スクショ保存</button>
