@@ -564,7 +564,7 @@
   .note, .warning, .info-box { margin: 4px 0; padding: 8px; font-size: 0.75rem; }
 
   /* Numpad: よりコンパクト */
-  .numpad-wrap { max-width: 240px; }
+  .numpad-wrap { max-width: 240px; margin: 4px auto; }
   .numpad-btn { min-height: 32px !important; font-size: 0.95rem !important; }
   .numpad-display { font-size: 1.1rem !important; padding: 4px 8px !important; min-height: 38px !important; }
 
@@ -906,7 +906,7 @@
 .bact-level-btn.bact-level-fail.selected { background:#C62828; border-color:#C62828; color:#fff; }
 
 /* === Compact Numpad === */
-.numpad-wrap { margin:4px 0; max-width:280px; }
+.numpad-wrap { margin:4px auto; max-width:280px; }
 .numpad-grid { gap:3px !important; }
 .numpad-btn { min-height:36px !important; font-size:1rem !important; }
 .numpad-display { font-size:1.3rem !important; padding:6px 10px !important; }
@@ -976,8 +976,9 @@
 .plan-preview h3 { text-align:center; font-size:0.9rem; margin-bottom:12px; }
 
 /* Teeth/gum status checkboxes */
-.plan-teeth-row { display:flex; flex-wrap:wrap; gap:12px; }
-.plan-teeth-item label { display:flex; align-items:center; gap:3px; font-size:0.75rem; }
+.plan-teeth-row { display:flex; flex-wrap:wrap; gap:14px; }
+.plan-teeth-check { display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer; }
+.plan-teeth-check input[type="checkbox"] { width:16px; height:16px; margin:0; accent-color:var(--teal); }
 
 </style>
 </head>
@@ -2223,9 +2224,9 @@
           <tr><td>9</td><td class="row-label">嚥下の機能の程度</td><td><span id="plan-res7">---</span></td><td id="plan-crit7">---</td><td class="result-val" id="plan-judge7">---</td></tr>
           <tr><td>10</td><td class="row-label">歯・歯肉の状態</td><td colspan="3">
             <div class="plan-teeth-row">
-              <label>プラーク: <select id="plan-plaque"><option value="">--</option><option value="なし">なし</option><option value="あり">あり</option></select></label>
-              <label>歯肉の炎症: <select id="plan-gingivitis"><option value="">--</option><option value="なし">なし</option><option value="あり">あり</option></select></label>
-              <label>歯の動揺: <select id="plan-mobility"><option value="">--</option><option value="なし">なし</option><option value="あり">あり</option></select></label>
+              <label class="plan-teeth-check"><input type="checkbox" id="plan-plaque"> プラーク</label>
+              <label class="plan-teeth-check"><input type="checkbox" id="plan-gingivitis"> 歯肉の炎症</label>
+              <label class="plan-teeth-check"><input type="checkbox" id="plan-mobility"> 歯の動揺</label>
             </div>
           </td></tr>
           <tr><td>11</td><td class="row-label">口腔内・義歯の状態</td><td colspan="3"><input type="text" id="plan-denture-status" placeholder="所見を記入" style="width:100%;"></td></tr>
@@ -2280,6 +2281,9 @@
 
       <!-- 管理方針 -->
       <div class="plan-section-title">【管理方針・目標（ゴール）・治療予定等】</div>
+      <div style="margin-bottom:6px;">
+        <button class="plan-btn plan-btn-outline" onclick="generateGoalText()" style="font-size:0.72rem; padding:5px 12px; flex:none; min-width:auto;">📝 定型文を挿入</button>
+      </div>
       <textarea class="plan-textarea" id="plan-goal" rows="4" placeholder="管理方針・目標・治療予定等を記入"></textarea>
 
       <!-- 再評価の時期 -->
@@ -3208,6 +3212,38 @@ if ('serviceWorker' in navigator) {
     });
   }
 
+  // === Generate Management Plan Template Text ===
+  function generateGoalText(){
+    var templates=[
+      {statusId:'res-status1',naId:'na-test1',text:'口腔衛生状態の改善を目指し、ブラッシング指導および専門的口腔ケアを実施する。'},
+      {statusId:'res-status2',naId:'na-test2',text:'口腔乾燥の改善のため、保湿指導および唾液分泌促進のための指導を行う。'},
+      {statusId:'res-status3',naId:'na-test3',text:'咬合力の維持・回復を目的として、咬合管理および必要に応じた補綴治療を検討する。'},
+      {statusId:'res-status4',naId:'na-test4',text:'舌口唇運動機能の維持・向上のため、パタカラ体操等の口腔機能訓練を指導する。'},
+      {statusId:'res-status5',naId:'na-test5',text:'舌圧の向上を目指し、舌筋力トレーニングを指導する。'},
+      {statusId:'res-status6',naId:'na-test6',text:'咀嚼機能の改善を目的として、咀嚼訓練の指導および食形態の調整を行う。'},
+      {statusId:'res-status7',naId:'na-test7',text:'嚥下機能の維持を目的として、嚥下訓練および食事姿勢の指導を行う。'}
+    ];
+    var sentences=[];
+    for(var i=0;i<templates.length;i++){
+      var t=templates[i];
+      var naEl=document.getElementById(t.naId);
+      if(naEl&&naEl.checked) continue;
+      var statusEl=document.getElementById(t.statusId);
+      if(statusEl&&statusEl.textContent==='該当'){
+        sentences.push(t.text);
+      }
+    }
+    var months=document.getElementById('plan-reeval-months').value||'6';
+    var reevalText=months+'か月後に再評価を実施し、改善状況を確認する。';
+    var textarea=document.getElementById('plan-goal');
+    if(sentences.length===0){
+      textarea.value='各検査項目において特記すべき所見は認められない。口腔機能の維持を目的として、定期的な管理を継続する。'+reevalText;
+    }else{
+      sentences.push(reevalText);
+      textarea.value=sentences.join('\n');
+    }
+  }
+
   // === Screenshot Save (saves to device photo library) ===
   function savePlanScreenshot(){
     var btn=event.target;
@@ -3228,6 +3264,20 @@ if ('serviceWorker' in navigator) {
         var pName=document.getElementById('plan-patient-name').value||'患者名未入力';
         var pDate=document.getElementById('plan-date').value||new Date().toISOString().slice(0,10);
         var filename='管理計画書_'+pName+'_'+pDate+'.png';
+
+        // Detect Chrome on iOS/iPadOS (cannot save to Photos)
+        var isCriOS=/CriOS/i.test(navigator.userAgent);
+        var isIPadOrIOS=/iPad|iPhone|iPod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+        if(isCriOS&&isIPadOrIOS){
+          alert('Chromeでは写真アプリへの直接保存ができません。\n画像ファイルとしてダウンロードします。\n\n写真アプリに保存したい場合は、Safariでご利用ください。');
+          fallbackDownload(blob,filename);
+          btn.textContent='✓ 画像保存完了';
+          btn.style.background='#4CAF50';
+          btn.style.opacity='1';
+          btn.disabled=false;
+          setTimeout(function(){btn.textContent=origText;btn.style.background='';},2000);
+          return;
+        }
 
         // Try share API first (iOS Safari - saves to photos)
         if(navigator.share&&navigator.canShare){
