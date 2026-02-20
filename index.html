@@ -689,9 +689,10 @@
   .result-item-info { flex:1; min-width:0; }
   .result-item-name { font-size:0.8rem; font-weight:700; }
   .result-item-criteria { font-size:0.65rem; color:var(--grey-600); }
-  .result-item-input { flex-shrink:0; width:90px; }
-  .result-item-input input { width:100%; padding:6px 8px; border:2px solid var(--grey-200); border-radius:6px; font-size:0.85rem; font-family:inherit; text-align:center; }
+  .result-item-input { flex-shrink:0; width:90px; display:flex; align-items:center; gap:2px; flex-wrap:wrap; }
+  .result-item-input input { width:100%; padding:6px 8px; border:2px solid var(--grey-200); border-radius:6px; font-size:0.85rem; font-family:inherit; text-align:center; flex:1; min-width:0; }
   .result-item-input input:focus { outline:none; border-color:var(--teal); }
+  .res-unit { font-size:0.6rem; color:var(--grey-600); font-weight:600; white-space:nowrap; }
   .result-item-status { flex-shrink:0; width:50px; text-align:center; font-size:0.7rem; font-weight:700; padding:4px 6px; border-radius:6px; }
   .status-pass { background:#E8F5E9; color:#2E7D32; }
   .status-fail { background:#FFEBEE; color:#D32F2F; }
@@ -2079,19 +2080,19 @@
   <div class="result-card">
     <div class="result-card-header" style="background:var(--grey-100);">📋 各項目の結果</div>
     <div class="result-card-body">
-      <div class="result-item"><div class="result-item-num" style="background:#00897B;">①</div><div class="result-item-info"><div class="result-item-name">口腔衛生状態不良</div><div class="result-item-criteria" id="res-method1">TCI 50%以上</div></div><div class="na-check-inline"><input type="checkbox" id="na-test1" onchange="judgeResults()"><label for="na-test1">実施せず</label></div><div class="result-item-input"><input type="text" id="res-test1" placeholder="値" onchange="judgeResults()"></div><div class="result-item-status status-none" id="res-status1">--</div></div>
+      <div class="result-item"><div class="result-item-num" style="background:#00897B;">①</div><div class="result-item-info"><div class="result-item-name">口腔衛生状態不良</div><div class="result-item-criteria" id="res-method1">TCI 50%以上</div></div><div class="na-check-inline"><input type="checkbox" id="na-test1" onchange="judgeResults()"><label for="na-test1">実施せず</label></div><div class="result-item-input" style="width:110px;"><select id="res-test1" onchange="judgeResults()" style="width:100%;padding:6px 4px;border:2px solid #E0E0E0;border-radius:6px;font-size:0.75rem;font-family:inherit;text-align:center;appearance:auto;"><option value="">--</option><option value="0">0/18 (0.0%)</option><option value="5.6">1/18 (5.6%)</option><option value="11.1">2/18 (11.1%)</option><option value="16.7">3/18 (16.7%)</option><option value="22.2">4/18 (22.2%)</option><option value="27.8">5/18 (27.8%)</option><option value="33.3">6/18 (33.3%)</option><option value="38.9">7/18 (38.9%)</option><option value="44.4">8/18 (44.4%)</option><option value="50.0">9/18 (50.0%)</option><option value="55.6">10/18 (55.6%)</option><option value="61.1">11/18 (61.1%)</option><option value="66.7">12/18 (66.7%)</option><option value="72.2">13/18 (72.2%)</option><option value="77.8">14/18 (77.8%)</option><option value="83.3">15/18 (83.3%)</option><option value="88.9">16/18 (88.9%)</option><option value="94.4">17/18 (94.4%)</option><option value="100">18/18 (100%)</option></select></div><div class="result-item-status status-none" id="res-status1">--</div></div>
 
-      <div class="result-item"><div class="result-item-num" style="background:#1565C0;">②</div><div class="result-item-info"><div class="result-item-name">口腔乾燥</div><div class="result-item-criteria" id="res-method2">口腔水分計 27.0未満</div></div><div class="na-check-inline"><input type="checkbox" id="na-test2" onchange="judgeResults()"><label for="na-test2">実施せず</label></div><div class="result-item-input"><input type="text" id="res-test2" placeholder="値" onchange="judgeResults()"></div><div class="result-item-status status-none" id="res-status2">--</div></div>
+      <div class="result-item"><div class="result-item-num" style="background:#1565C0;">②</div><div class="result-item-info"><div class="result-item-name">口腔乾燥</div><div class="result-item-criteria" id="res-method2">口腔水分計 27.0未満</div></div><div class="na-check-inline"><input type="checkbox" id="na-test2" onchange="judgeResults()"><label for="na-test2">実施せず</label></div><div class="result-item-input"><input type="text" id="res-test2" placeholder="値" onchange="judgeResults()"><span class="res-unit" id="res-unit2"></span></div><div class="result-item-status status-none" id="res-status2">--</div></div>
 
-      <div class="result-item"><div class="result-item-num" style="background:#6A1B9A;">③</div><div class="result-item-info"><div class="result-item-name">咬合力低下</div><div class="result-item-criteria" id="res-method3">Oramo-bf 375N未満</div></div><div class="na-check-inline"><input type="checkbox" id="na-test3" onchange="judgeResults()"><label for="na-test3">実施せず</label></div><div class="result-item-input"><input type="text" id="res-test3" placeholder="値" onchange="judgeResults()"></div><div class="result-item-status status-none" id="res-status3">--</div></div>
+      <div class="result-item"><div class="result-item-num" style="background:#6A1B9A;">③</div><div class="result-item-info"><div class="result-item-name">咬合力低下</div><div class="result-item-criteria" id="res-method3">Oramo-bf 375N未満</div></div><div class="na-check-inline"><input type="checkbox" id="na-test3" onchange="judgeResults()"><label for="na-test3">実施せず</label></div><div class="result-item-input"><input type="text" id="res-test3" placeholder="値" onchange="judgeResults()"><span class="res-unit" id="res-unit3">N</span></div><div class="result-item-status status-none" id="res-status3">--</div></div>
 
-      <div class="result-item"><div class="result-item-num" style="background:#E65100;">④</div><div class="result-item-info"><div class="result-item-name">舌口唇運動機能低下</div><div class="result-item-criteria" id="res-method4">パタカ いずれか6回/秒未満</div></div><div class="na-check-inline"><input type="checkbox" id="na-test4" onchange="judgeResults()"><label for="na-test4">実施せず</label></div><div class="result-item-input"><div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><span style="font-size:0.7rem;font-weight:700;color:#E65100;width:16px;">パ</span><input type="text" id="res-test4-pa" placeholder="回/秒" onchange="judgeResults()" style="width:70px;padding:5px 4px;border:2px solid #E0E0E0;border-radius:6px;font-size:0.8rem;text-align:center;font-family:inherit;"></div><div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><span style="font-size:0.7rem;font-weight:700;color:#1565C0;width:16px;">タ</span><input type="text" id="res-test4-ta" placeholder="回/秒" onchange="judgeResults()" style="width:70px;padding:5px 4px;border:2px solid #E0E0E0;border-radius:6px;font-size:0.8rem;text-align:center;font-family:inherit;"></div><div style="display:flex;align-items:center;gap:4px;"><span style="font-size:0.7rem;font-weight:700;color:#2E7D32;width:16px;">カ</span><input type="text" id="res-test4-ka" placeholder="回/秒" onchange="judgeResults()" style="width:70px;padding:5px 4px;border:2px solid #E0E0E0;border-radius:6px;font-size:0.8rem;text-align:center;font-family:inherit;"></div></div><div class="result-item-status status-none" id="res-status4">--</div><input type="hidden" id="res-test4"></div>
+      <div class="result-item"><div class="result-item-num" style="background:#E65100;">④</div><div class="result-item-info"><div class="result-item-name">舌口唇運動機能低下</div><div class="result-item-criteria" id="res-method4">パタカ いずれか6回/秒未満</div></div><div class="na-check-inline"><input type="checkbox" id="na-test4" onchange="judgeResults()"><label for="na-test4">実施せず</label></div><div class="result-item-input"><div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><span style="font-size:0.7rem;font-weight:700;color:#E65100;width:16px;">パ</span><input type="text" id="res-test4-pa" placeholder="値" onchange="judgeResults()" style="width:60px;padding:5px 4px;border:2px solid #E0E0E0;border-radius:6px;font-size:0.8rem;text-align:center;font-family:inherit;"><span class="res-unit">回/秒</span></div><div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><span style="font-size:0.7rem;font-weight:700;color:#1565C0;width:16px;">タ</span><input type="text" id="res-test4-ta" placeholder="値" onchange="judgeResults()" style="width:60px;padding:5px 4px;border:2px solid #E0E0E0;border-radius:6px;font-size:0.8rem;text-align:center;font-family:inherit;"><span class="res-unit">回/秒</span></div><div style="display:flex;align-items:center;gap:4px;"><span style="font-size:0.7rem;font-weight:700;color:#2E7D32;width:16px;">カ</span><input type="text" id="res-test4-ka" placeholder="値" onchange="judgeResults()" style="width:60px;padding:5px 4px;border:2px solid #E0E0E0;border-radius:6px;font-size:0.8rem;text-align:center;font-family:inherit;"><span class="res-unit">回/秒</span></div></div><div class="result-item-status status-none" id="res-status4">--</div><input type="hidden" id="res-test4"></div>
 
-      <div class="result-item"><div class="result-item-num" style="background:#C2185B;">⑤</div><div class="result-item-info"><div class="result-item-name">低舌圧</div><div class="result-item-criteria" id="res-method5">最大舌圧 30kPa未満</div></div><div class="na-check-inline"><input type="checkbox" id="na-test5" onchange="judgeResults()"><label for="na-test5">実施せず</label></div><div class="result-item-input"><input type="text" id="res-test5" placeholder="値" onchange="judgeResults()"></div><div class="result-item-status status-none" id="res-status5">--</div></div>
+      <div class="result-item"><div class="result-item-num" style="background:#C2185B;">⑤</div><div class="result-item-info"><div class="result-item-name">低舌圧</div><div class="result-item-criteria" id="res-method5">最大舌圧 30kPa未満</div></div><div class="na-check-inline"><input type="checkbox" id="na-test5" onchange="judgeResults()"><label for="na-test5">実施せず</label></div><div class="result-item-input"><input type="text" id="res-test5" placeholder="値" onchange="judgeResults()"><span class="res-unit" id="res-unit5">kPa</span></div><div class="result-item-status status-none" id="res-status5">--</div></div>
 
-      <div class="result-item"><div class="result-item-num" style="background:#2E7D32;">⑥</div><div class="result-item-info"><div class="result-item-name">咀嚼機能低下</div><div class="result-item-criteria" id="res-method6">グルコース 100mg/dL未満</div></div><div class="na-check-inline"><input type="checkbox" id="na-test6" onchange="judgeResults()" checked><label for="na-test6">実施せず</label></div><div class="result-item-input"><input type="text" id="res-test6" placeholder="値" onchange="judgeResults()"></div><div class="result-item-status status-none" id="res-status6">--</div></div>
+      <div class="result-item"><div class="result-item-num" style="background:#2E7D32;">⑥</div><div class="result-item-info"><div class="result-item-name">咀嚼機能低下</div><div class="result-item-criteria" id="res-method6">グルコース 100mg/dL未満</div></div><div class="na-check-inline"><input type="checkbox" id="na-test6" onchange="judgeResults()" checked><label for="na-test6">実施せず</label></div><div class="result-item-input"><input type="text" id="res-test6" placeholder="値" onchange="judgeResults()"><span class="res-unit" id="res-unit6">mg/dL</span></div><div class="result-item-status status-none" id="res-status6">--</div></div>
 
-      <div class="result-item"><div class="result-item-num" style="background:#D32F2F;">⑦</div><div class="result-item-info"><div class="result-item-name">嚥下機能低下</div><div class="result-item-criteria" id="res-method7">聖隷式 A≧1またはB≧4</div></div><div class="na-check-inline"><input type="checkbox" id="na-test7" onchange="judgeResults()"><label for="na-test7">実施せず</label></div><div class="result-item-input"><input type="text" id="res-test7" placeholder="値" onchange="judgeResults()"></div><div class="result-item-status status-none" id="res-status7">--</div></div>
+      <div class="result-item"><div class="result-item-num" style="background:#D32F2F;">⑦</div><div class="result-item-info"><div class="result-item-name">嚥下機能低下</div><div class="result-item-criteria" id="res-method7">聖隷式 A≧1またはB≧4</div></div><div class="na-check-inline"><input type="checkbox" id="na-test7" onchange="judgeResults()"><label for="na-test7">実施せず</label></div><div class="result-item-input"><input type="text" id="res-test7" placeholder="値" onchange="judgeResults()"><span class="res-unit" id="res-unit7">点</span></div><div class="result-item-status status-none" id="res-status7">--</div></div>
     </div>
   </div>
 
@@ -2289,8 +2290,8 @@
       <!-- 再評価の時期 -->
       <div class="plan-section-title">【再評価の時期・治療期間】</div>
       <table class="plan-table">
-        <tr><th>再評価の時期</th><td>約 <input type="text" id="plan-reeval-months" value="6" style="width:40px;text-align:center;"> か月後</td></tr>
-        <tr><th>治療期間</th><td><input type="text" id="plan-treatment-period" placeholder="例：6か月程度" style="width:100%;"></td></tr>
+        <tr><th>再評価の時期</th><td>約6か月後</td></tr>
+        <tr><th>治療期間</th><td>約6か月</td></tr>
       </table>
 
     </div>
@@ -2591,8 +2592,28 @@
   // ===== Seirei (button-based, A>=1 or B>=4) =====
   function calcSeirei(){var rows=document.querySelectorAll('#seirei-form .q-row'),ac=0,bc=0,cc=0,an=0;rows.forEach(function(r){var sel=r.querySelector('.q-btn.selected');if(sel){an++;if(sel.dataset.val==='A')ac++;else if(sel.dataset.val==='B')bc++;else if(sel.dataset.val==='C')cc++;}});var el=document.getElementById('seirei-result');if(an===0){el.className='result-value result-none';el.textContent='A: --- / B: --- / C: --- (合計: ---点)';return;}var total=ac*4+bc*1;if(total>=4){el.className='result-value result-fail';el.textContent='A: '+ac+'(×4) B: '+bc+'(×1) C: '+cc+' 合計: '+total+'点 → 該当（4点以上）';}else{el.className='result-value result-pass';el.textContent='A: '+ac+'(×4) B: '+bc+'(×1) C: '+cc+' 合計: '+total+'点 → 正常';}syncFromTabs();}
 
+  // ===== Update result units based on selected method =====
+  function updateResultUnits(){
+    // ② 口腔乾燥
+    var m2=document.getElementById('method-test2').value;
+    var u2=document.getElementById('res-unit2');
+    if(u2) u2.textContent=(m2==='moisture'?'':'g');
+    // ③ 咬合力
+    var m3=document.getElementById('method-test3').value;
+    var u3=document.getElementById('res-unit3');
+    if(u3) u3.textContent=(m3==='teeth'?'本':'N');
+    // ⑥ 咀嚼
+    var m6=document.getElementById('method-test6').value;
+    var u6=document.getElementById('res-unit6');
+    if(u6) u6.textContent=(m6==='glucose'?'mg/dL':'');
+    // ⑦ 嚥下
+    var m7=document.getElementById('method-test7').value;
+    var u7=document.getElementById('res-unit7');
+    if(u7) u7.textContent='点';
+  }
+
   // ===== Integrated Results =====
-  function judgeResults(){var fc=0;for(var i=1;i<=7;i++){var na=document.getElementById('na-test'+i).checked,se=document.getElementById('res-status'+i);
+  function judgeResults(){updateResultUnits();var fc=0;for(var i=1;i<=7;i++){var na=document.getElementById('na-test'+i).checked,se=document.getElementById('res-status'+i);
     // ④ special: 3 inputs (pa/ta/ka)
     if(i===4){
       var paPtk=document.getElementById('res-test4-pa');
@@ -3151,6 +3172,46 @@ if ('serviceWorker' in navigator) {
     btn.disabled=true;
 
     var el=document.getElementById('plan-content');
+
+    // --- Pre-capture: expand textareas & fix inputs for clean PDF ---
+    var textareas=el.querySelectorAll('textarea');
+    var origStyles=[];
+    textareas.forEach(function(ta){
+      origStyles.push({el:ta,height:ta.style.height,overflow:ta.style.overflow});
+      ta.style.height='auto';
+      ta.style.height=ta.scrollHeight+'px';
+      ta.style.overflow='hidden';
+    });
+    // Save patient name/date before input swap
+    var pNameVal=document.getElementById('plan-patient-name').value||'患者名未入力';
+    var pDateVal=document.getElementById('plan-date').value||new Date().toISOString().slice(0,10);
+    // Fix inputs: replace with visible spans for PDF capture
+    var inputs=el.querySelectorAll('input[type="text"],input[type="number"],input[type="date"]');
+    var inputBackups=[];
+    inputs.forEach(function(inp){
+      var span=document.createElement('span');
+      var displayVal=inp.value;
+      if(inp.type==='date'&&displayVal){displayVal=displayVal.replace(/-/g,'/');}
+      span.textContent=displayVal||'';
+      span.style.cssText='font-size:0.75rem;font-family:inherit;display:inline-block;padding:4px 6px;word-break:break-all;line-height:1.4;';
+      span.className='pdf-temp-span';
+      inp.style.display='none';
+      inp.parentNode.insertBefore(span,inp.nextSibling);
+      inputBackups.push({inp:inp,span:span});
+    });
+    // Fix selects: replace with visible spans
+    var selects=el.querySelectorAll('select');
+    selects.forEach(function(sel){
+      var span=document.createElement('span');
+      var opt=sel.options[sel.selectedIndex];
+      span.textContent=opt?opt.text:'';
+      span.style.cssText='font-size:0.75rem;font-family:inherit;display:inline-block;padding:4px 6px;line-height:1.4;';
+      span.className='pdf-temp-span';
+      sel.style.display='none';
+      sel.parentNode.insertBefore(span,sel.nextSibling);
+      inputBackups.push({inp:sel,span:span});
+    });
+
     html2canvas(el,{
       scale:2,
       useCORS:true,
@@ -3194,9 +3255,11 @@ if ('serviceWorker' in navigator) {
         }
       }
 
-      var pName=document.getElementById('plan-patient-name').value||'患者名未入力';
-      var pDate=document.getElementById('plan-date').value||new Date().toISOString().slice(0,10);
-      pdf.save('管理計画書_'+pName+'_'+pDate+'.pdf');
+      pdf.save('管理計画書_'+pNameVal+'_'+pDateVal+'.pdf');
+
+      // --- Post-capture: restore original state ---
+      origStyles.forEach(function(o){o.el.style.height=o.height;o.el.style.overflow=o.overflow;});
+      inputBackups.forEach(function(b){b.inp.style.display='';b.span.remove();});
 
       btn.textContent='✓ PDF保存完了';
       btn.style.background='#4CAF50';
@@ -3205,6 +3268,9 @@ if ('serviceWorker' in navigator) {
       setTimeout(function(){btn.textContent=origText;btn.style.background='';},2000);
     }).catch(function(err){
       console.error('PDF export error:',err);
+      // --- Restore on error too ---
+      origStyles.forEach(function(o){o.el.style.height=o.height;o.el.style.overflow=o.overflow;});
+      inputBackups.forEach(function(b){b.inp.style.display='';b.span.remove();});
       btn.textContent='❌ エラー';
       btn.style.opacity='1';
       btn.disabled=false;
@@ -3233,8 +3299,7 @@ if ('serviceWorker' in navigator) {
         sentences.push(t.text);
       }
     }
-    var months=document.getElementById('plan-reeval-months').value||'6';
-    var reevalText=months+'か月後に再評価を実施し、改善状況を確認する。';
+    var reevalText='6か月後に再評価を実施し、改善状況を確認する。';
     var textarea=document.getElementById('plan-goal');
     if(sentences.length===0){
       textarea.value='各検査項目において特記すべき所見は認められない。口腔機能の維持を目的として、定期的な管理を継続する。'+reevalText;
